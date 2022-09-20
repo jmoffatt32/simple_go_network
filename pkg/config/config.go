@@ -21,8 +21,8 @@ func FetchConfig() (map[string]string, [2]int) {
 	check(err)
 	defer f.Close()
 
-	addrMap := make(map[string]string)
-	var delays [2]int
+	addrMap := make(map[string]string) // Initialize a map to map a network id to a network address:port
+	var delays [2]int                  // Intialize an array to hold the min/max values for simulated network delay
 	scanner := bufio.NewScanner(f)
 	lineNum := 0
 
@@ -45,6 +45,7 @@ func FetchConfig() (map[string]string, [2]int) {
 		lineNum++
 	}
 
+	// Check for errors with the file and then file will be closed
 	err = scanner.Err()
 	check(err)
 
