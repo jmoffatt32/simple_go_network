@@ -17,7 +17,7 @@ func check(e error) {
 
 func FetchConfig() (map[string]string, [2]int) {
 	// Safely open configuration file
-	f, err := os.Open("config/.config")
+	f, err := os.Open("pkg/config/.config")
 	check(err)
 	defer f.Close()
 

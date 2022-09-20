@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
-	"tcp-network/config"
+	"tcp-network/pkg/config"
 )
 
 func main() {
