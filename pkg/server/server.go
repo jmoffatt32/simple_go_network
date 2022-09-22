@@ -55,7 +55,7 @@ func Server(address string) {
 
 		// Send message to the Client
 		// IMPLEMENT
-		// Need to update this method to send the message along
+		// Need to update this block to send the message along
 		// with the source of the message and the timestamp the
 		// server received it
 		fmt.Print("-> ", string(netData))
