@@ -12,8 +12,8 @@ import (
 // 	id      string
 // 	host    string
 // 	port    string
-// 	send    chan byte
-// 	receive chan byte
+// 	send    net.Conn
+// 	receive net.Conn
 // }
 
 func check(err error) {
