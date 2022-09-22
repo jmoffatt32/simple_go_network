@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"tcp-network/pkg/client"
 	"tcp-network/pkg/config"
+	"tcp-network/pkg/server"
 )
 
 func inputError() {
@@ -34,4 +36,6 @@ func main() {
 	fmt.Println(delay)
 
 	// Implement package to start a client and a package to start a server...
+	go server.Server(address)
+	client.Client(address)
 }
