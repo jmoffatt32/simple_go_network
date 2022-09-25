@@ -25,7 +25,7 @@ func Client(address string) {
 
 		// Reads response from server
 		message, _ := bufio.NewReader(c).ReadString('\n')
-		fmt.Print("->: " + message)
+		fmt.Print(message)
 
 		// Checks if user attempts to end the session
 		if strings.TrimSpace(string(text)) == "STOP" {
