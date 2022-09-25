@@ -146,8 +146,8 @@ func Server(address string, addrMap map[string]string, delay [2]int) {
 		// Loop over outputs and empty the channel by writing each output to the client.
 		for element := range outputs {
 			t := element.timestamp
-			myTime := t.Format(time.RFC3339) + "\n"
-			c.Write([]byte("Sent: \"" + element.content + "\" to " + element.address + ": " + myTime))
+			myTime := t.Format(time.RFC3339)
+			c.Write([]byte(myTime + "---" + "Sent: \"" + element.content + "\" to " + element.address + "\n"))
 		}
 
 	}
