@@ -7,6 +7,7 @@ import (
 	"tcp-network/pkg/client"
 	"tcp-network/pkg/config"
 	"tcp-network/pkg/server"
+	"time"
 )
 
 func inputError() {
@@ -37,6 +38,6 @@ func main() {
 
 	// Launch server to run for this process
 	go server.Server(addrMap[id], addrMap, delay)
-
+	time.Sleep(time.Second)
 	client.MainClient(address)
 }

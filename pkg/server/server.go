@@ -10,7 +10,8 @@ import (
 )
 
 type Message struct {
-	address string
+	src     string
+	dest    string
 	content string
 }
 
@@ -49,12 +50,13 @@ func unicast_recieve(c net.Conn, client net.Conn) {
 
 	temp := strings.TrimSpace(string(netData)) + "\n"
 	src := c.RemoteAddr().String()
-	msg := Message{src, temp}
+	dest := c.LocalAddr().String()
+	msg := Message{src, dest, temp}
 
 	t := time.Now()
 	myTime := t.Format(time.RFC3339)
 	content := strings.Trim(msg.content, "\n")
-	client.Write([]byte(myTime + "---" + "Recieved: \"" + content + "\" to " + msg.address + "\n"))
+	client.Write([]byte(myTime + "---" + "Recieved: \"" + content + "\" from " + msg.src + "\n"))
 
 	c.Close()
 }
@@ -73,13 +75,13 @@ func outgoing_routine(delays [2]int, outgoing_messages chan Message, client net.
 		delay := delays[0] + rand.Intn(delays[1]-delays[0])
 
 		time.Sleep(time.Duration(delay) * time.Millisecond)
-		unicast_send(msg.address, msg.content)
+		unicast_send(msg.dest, msg.content)
 
 		sent := Confirmed{msg, "OUT", time.Now()}
 		t := sent.timestamp
 		myTime := t.Format(time.RFC3339)
 		content := strings.Trim(sent.message.content, "\n")
-		client.Write([]byte(myTime + "---" + "Sent: \"" + content + "\" to " + sent.message.address + "\n"))
+		client.Write([]byte(myTime + "---" + "Sent: \"" + content + "\" to " + sent.message.dest + "\n"))
 	}
 }
 
@@ -108,9 +110,10 @@ func Server(address string, addrMap map[string]string, delay [2]int) {
 			return
 		}
 
-		dest, msg := parse_input(netData)
-		address := addrMap[dest]
-		outgoing <- Message{address, msg}
+		id, msg := parse_input(netData)
+		src := c.LocalAddr().String()
+		dest := addrMap[id]
+		outgoing <- Message{src, dest, msg}
 	}
 
 }
