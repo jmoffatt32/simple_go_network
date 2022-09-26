@@ -17,7 +17,6 @@ type Message struct {
 
 type Confirmed struct {
 	message   Message
-	direction string
 	timestamp time.Time
 }
 
@@ -37,14 +36,20 @@ func parse_input(raw_input string) (string, string) {
 }
 
 func unicast_send(destination string, message string) {
+
 	c, err := net.Dial("tcp", destination)
 	check(err)
+
+	// TODO:
+	// Change implementation to write bites where the first n bytes are the address that the message came from
 	fmt.Fprintf(c, message+"\n")
 	c.Close()
 }
 
 func unicast_recieve(c net.Conn, client net.Conn) {
 
+	// TODO:
+	// Change implementation to Read Bytes where the first n bytes are the address that the message came from
 	netData, err := bufio.NewReader(c).ReadString('\n')
 	check(err)
 
@@ -61,7 +66,7 @@ func unicast_recieve(c net.Conn, client net.Conn) {
 	c.Close()
 }
 
-func incoming_routine(l net.Listener, client net.Conn) {
+func inbound(l net.Listener, client net.Conn) {
 	for {
 		c, err := l.Accept()
 		check(err)
@@ -69,7 +74,7 @@ func incoming_routine(l net.Listener, client net.Conn) {
 	}
 }
 
-func outgoing_routine(delays [2]int, outgoing_messages chan Message, client net.Conn) {
+func outbound(delays [2]int, outgoing_messages chan Message, client net.Conn) {
 	for {
 		var msg Message = <-outgoing_messages
 		delay := delays[0] + rand.Intn(delays[1]-delays[0])
@@ -77,7 +82,7 @@ func outgoing_routine(delays [2]int, outgoing_messages chan Message, client net.
 		time.Sleep(time.Duration(delay) * time.Millisecond)
 		unicast_send(msg.dest, msg.content)
 
-		sent := Confirmed{msg, "OUT", time.Now()}
+		sent := Confirmed{msg, time.Now()}
 		t := sent.timestamp
 		myTime := t.Format(time.RFC3339)
 		content := strings.Trim(sent.message.content, "\n")
@@ -97,22 +102,35 @@ func Server(address string, addrMap map[string]string, delay [2]int) {
 	c, err := l.Accept()
 	check(err)
 
+	// Make a channel for the server to fill with a queue of outbound messages
+	// to be sent.
 	outgoing := make(chan Message, 5)
-	go incoming_routine(l, c)
-	go outgoing_routine(delay, outgoing, c)
+
+	// Start a goroutine to handle incoming connections and deliver messages and
+	// another goroutine to handle sending outgoing messages from the "outgoing" channel.
+	go inbound(l, c)
+	go outbound(delay, outgoing, c)
+
+	// Read the buffer from the client for users input..
 	for {
-		// Read the input from the client...
+		// ...read the input from the client until a "\n" character...
 		netData, err := bufio.NewReader(c).ReadString('\n')
 		check(err)
-		// ... if necessary, stop the server.
+
+		// ... if necessary, stop the server...
 		if strings.TrimSpace(string(netData)) == "STOP" {
 			fmt.Println("Exiting TCP server!")
 			return
 		}
 
+		// ...else, parse the users input and extract the
+		// destination and content for the message.
 		id, msg := parse_input(netData)
 		src := c.LocalAddr().String()
 		dest := addrMap[id]
+
+		// Place this message into the outgoing channel for it to be
+		// sent by the goroutine running "outbound".
 		outgoing <- Message{src, dest, msg}
 	}
 
