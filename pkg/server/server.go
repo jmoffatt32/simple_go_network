@@ -48,7 +48,7 @@ func unicast_recieve(c net.Conn, client net.Conn) {
 	check(err)
 
 	temp := strings.TrimSpace(string(netData)) + "\n"
-	src := c.LocalAddr().String()
+	src := c.RemoteAddr().String()
 	msg := Message{src, temp}
 
 	t := time.Now()
