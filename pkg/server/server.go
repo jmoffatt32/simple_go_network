@@ -9,15 +9,10 @@ import (
 	"time"
 )
 
-// type Network struct {
-// 	id      string
-// 	host    string
-// 	port    string
-// 	send    net.Conn
-// 	receive net.Conn
-// }
-
-// var DNS map[string]Network
+type TCPChannel struct {
+	address string
+	conn    net.Conn
+}
 
 type OutgoingMessage struct {
 	destination string
@@ -54,7 +49,15 @@ func unicast_send(destination string, message string) {
 	fmt.Fprintf(c, message+"\n")
 }
 
-func unicast_recieve(source string, message string) {
+func unicast_recieve(conn net.Conn, inbound chan Confirmed) {
+
+	src := conn.LocalAddr().String()
+	msg, err := bufio.NewReader(conn).ReadString('\n')
+	check(err)
+
+	trimmed := strings.Trim(msg, "\n")
+	verified := Confirmed{"IN", src, trimmed, true, time.Now()}
+	inbound <- verified
 
 }
 
@@ -79,10 +82,9 @@ func incoming_routine(listener net.Listener, incoming chan Confirmed) {
 		c, err := listener.Accept()
 		check(err)
 
-		source := c.RemoteAddr().String()
-		message, err := bufio.NewReader(c).ReadString('\n')
-		check(err)
-		unicast_recieve(source, message)
+		unicast_recieve(c, incoming)
+
+		c.Close()
 	}
 }
 
@@ -142,12 +144,20 @@ func Server(address string, addrMap map[string]string, delay [2]int) {
 
 		// IMPLEMENT:
 		// Read channel from "incoming_routine" to check for any incoming messages.
+		if len(confirmed) > 0 {
+			var received Confirmed = <-confirmed
+			outputs <- received
+		}
 
 		// Loop over outputs and empty the channel by writing each output to the client.
 		for element := range outputs {
 			t := element.timestamp
 			myTime := t.Format(time.RFC3339)
-			c.Write([]byte(myTime + "---" + "Sent: \"" + element.content + "\" to " + element.address + "\n"))
+			if element.direction == "OUT" {
+				c.Write([]byte(myTime + "---" + "Sent: \"" + element.content + "\" to " + element.address + "\n"))
+			} else {
+				c.Write([]byte(myTime + "---" + "Received: \"" + element.content + "\" from " + element.address + "\n"))
+			}
 		}
 
 	}

@@ -35,7 +35,7 @@ func main() {
 	fmt.Println(address)
 	fmt.Println(delay)
 
-	// Implement package to start a client and a package to start a server...
-	go server.Server(address, addrMap, delay)
-	client.Client(address)
+	// Launch server to run for this process
+	go server.Server(addrMap[id], addrMap, delay)
+	client.MainClient(address)
 }
