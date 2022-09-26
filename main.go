@@ -37,5 +37,6 @@ func main() {
 
 	// Launch server to run for this process
 	go server.Server(addrMap[id], addrMap, delay)
+
 	client.MainClient(address)
 }

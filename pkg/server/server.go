@@ -135,21 +135,13 @@ func Server(address string, addrMap map[string]string, delay [2]int) {
 		// ... create a new Message and send it to the "outgoing_routine" via
 		// the outgoing channel.
 		var new_msg OutgoingMessage = OutgoingMessage{dest, content}
+		fmt.Println("Here it is: ")
+		fmt.Println(new_msg)
 		outgoing <- new_msg
 
 		// ... accept Confirmed variable from the "outgoing_routine" once the message
 		// has been sent.
-		var verified Confirmed = <-confirmed
-		outputs <- verified
 
-		// IMPLEMENT:
-		// Read channel from "incoming_routine" to check for any incoming messages.
-		if len(confirmed) > 0 {
-			var received Confirmed = <-confirmed
-			outputs <- received
-		}
-
-		// Loop over outputs and empty the channel by writing each output to the client.
 		for element := range outputs {
 			t := element.timestamp
 			myTime := t.Format(time.RFC3339)
