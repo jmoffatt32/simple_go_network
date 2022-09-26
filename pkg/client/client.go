@@ -12,6 +12,7 @@ func listening(c net.Conn) {
 	for {
 		// Reads response from server
 		message, _ := bufio.NewReader(c).ReadString('\n')
+		fmt.Fprint(os.Stdout, "\r \r")
 		fmt.Print(message)
 		fmt.Print(">> ")
 	}
