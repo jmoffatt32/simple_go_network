@@ -9,11 +9,6 @@ import (
 	"time"
 )
 
-type TCPChannel struct {
-	address string
-	conn    net.Conn
-}
-
 type OutgoingMessage struct {
 	destination string
 	content     string
@@ -47,6 +42,8 @@ func unicast_send(destination string, message string) {
 	c, err := net.Dial("tcp", destination)
 	check(err)
 	fmt.Fprintf(c, message+"\n")
+	c.Close()
+
 }
 
 func unicast_recieve(conn net.Conn, inbound chan Confirmed) {
@@ -61,7 +58,7 @@ func unicast_recieve(conn net.Conn, inbound chan Confirmed) {
 
 }
 
-func outgoing_routine(delays [2]int, outgoing_messages chan OutgoingMessage, status chan Confirmed) {
+func outgoing_routine(delays [2]int, outgoing_messages chan OutgoingMessage, confirmed chan Confirmed) {
 
 	for {
 		var msg OutgoingMessage = <-outgoing_messages
@@ -72,7 +69,7 @@ func outgoing_routine(delays [2]int, outgoing_messages chan OutgoingMessage, sta
 
 		trimmed := strings.Trim(msg.content, "\n")
 		verified := Confirmed{"OUT", msg.destination, trimmed, true, time.Now()}
-		status <- verified
+		confirmed <- verified
 	}
 }
 
@@ -115,7 +112,17 @@ func Server(address string, addrMap map[string]string, delay [2]int) {
 
 	// Create a buffered channel to hold all the outputs to be sent
 	// read to the client at the end of each iteration.
-	outputs := make(chan Confirmed, 5)
+	go func() {
+		for element := range confirmed {
+			t := element.timestamp
+			myTime := t.Format(time.RFC3339)
+			if element.direction == "OUT" {
+				c.Write([]byte(myTime + "---" + "Sent: \"" + element.content + "\" to " + element.address + "\n"))
+			} else {
+				c.Write([]byte(myTime + "---" + "Received: \"" + element.content + "\" from " + element.address + "\n"))
+			}
+		}
+	}()
 	// Start loop to read the buffer for messages from the client to send
 	// This is the application layer
 	for {
@@ -138,19 +145,6 @@ func Server(address string, addrMap map[string]string, delay [2]int) {
 		fmt.Println("Here it is: ")
 		fmt.Println(new_msg)
 		outgoing <- new_msg
-
-		// ... accept Confirmed variable from the "outgoing_routine" once the message
-		// has been sent.
-
-		for element := range outputs {
-			t := element.timestamp
-			myTime := t.Format(time.RFC3339)
-			if element.direction == "OUT" {
-				c.Write([]byte(myTime + "---" + "Sent: \"" + element.content + "\" to " + element.address + "\n"))
-			} else {
-				c.Write([]byte(myTime + "---" + "Received: \"" + element.content + "\" from " + element.address + "\n"))
-			}
-		}
 
 	}
 
