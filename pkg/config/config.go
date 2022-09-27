@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
-// Checks errors and kills process if error occurs
 func check(e error) {
 	if e != nil {
 		fmt.Println(e)
@@ -16,38 +16,41 @@ func check(e error) {
 }
 
 func FetchConfig() (map[string]string, [2]int) {
-	// Safely open configuration file
 	f, err := os.Open("pkg/config/.config")
 	check(err)
 	defer f.Close()
 
-	addrMap := make(map[string]string) // Map a network id to a network address:port
-	var delay [2]int                   // delay[0] = minDelay & delay[1] = maxDelay
+	var delay [2]int
+	IDList := make([]string, 0)
+	IPList := make([]string, 0)
+	PortList := make([]string, 0)
+	addrMap := make(map[string]string)
 
-	// Read the file
-	lineNum := 0
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		// If reading the first line of the file...
-		if lineNum == 0 {
-			// ...use two integer values to initalize the delay array...
-			var line = scanner.Text()
-			delay[0], err = strconv.Atoi(line[:4])
-			check(err)
-			delay[1], err = strconv.Atoi(line[5:])
-			check(err)
-			// ...otherwise...
-		} else {
-			// ...read the line and map "id" --> "address:port"
-			var line = string(scanner.Text())
-			addrMap[string(line[0])] = line[2:11] + ":" + line[12:]
+		x := strings.Split(string(scanner.Text()), " ")
+		for i, v := range x {
+			if i%3 == 0 {
+				IDList = append(IDList, v)
+			}
+			if i%3 == 1 {
+				IPList = append(IPList, v)
+			}
+			if i%3 == 2 {
+				PortList = append(PortList, v)
+			}
 		}
-		lineNum++
 	}
 
-	// Safely close the file
-	err = scanner.Err()
+	delay[0], err = strconv.Atoi(IDList[0])
+	delay[1], err = strconv.Atoi(IPList[0])
 	check(err)
+	IDList = IDList[1:]
+	IPList = IPList[1:]
+
+	for i := 0; i < len(IDList); i++ {
+		addrMap[IDList[i]] = IPList[i] + ":" + PortList[i]
+	}
 
 	return addrMap, delay
 }
