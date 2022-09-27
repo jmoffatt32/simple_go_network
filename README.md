@@ -4,9 +4,9 @@
    - `go install tcp-network`
 2. Run the executable. Run the command providing an integer for `ID`:
    - `$HOME/go/bin/tcp-network ID`
-3. You will have to start at least two processes to send messages between instances
+3. You will have to start at least two processes (in two different terminals) to send messages between instances
 4. You'll be presented with a command prompt, enter commands to send messages in the form,
-   - `send {ID} {message}` where ID is a server instance that you have started, and message is a message you would like to send
+   - `send {ID} {message}` where ID is the number of server instance that you have started, and message is a message you would like to send
 
 # Documentation
 
@@ -61,17 +61,17 @@ When a process sends or receives a message, it should write a timestamp to the t
 
 FetchConfig takes a map of strings with string key values, and an array of 2 integers as inputs. The function opens the .config files from it's subsequent package and reads each line. The delay values on line 1 are stored in the array and the rest of the lines are stored in the map, mapping each process ID to their relative address:port before safely closing the file.
 
-    'func FetchConfig() (map[string]string, [2]int)' 
+    func FetchConfig() (map[string]string, [2]int)
 
 ## Client functionality in client.go
 
 listening takes a connection and reads messages from it. When a message is recieved it is printed for the user.
 
-    'func listening(c net.Conn)'
+    func listening(c net.Conn)
 
 MainClient takes an address and dials a connection to it. Once established user input is read from the command-line and sent to the network layer.
 
-    'func MainClient(address string)'
+    func MainClient(address string)
     
 ### Flow of execution
 
@@ -87,30 +87,30 @@ Begins in MainClient:
 
 The Server function in server.go serves as a main function to initialize needed variables to properly implement unicastSend and unicastRecieve, aswell as the incoming/outgoing routines to communicate with other processes. Server then reads from the application layer to store the destination address,ID, and desired message to be sent later.
 
-    'func Server(address string, addrMap map[string]string, delay [2]int)'
+    func Server(address string, addrMap map[string]string, delay [2]int)
     
 parseInput parses a string and outputs the destination ID and message from the user input fed in by the client.
 
-    'func parse_input(raw_input string) (string, string)'
+    func parse_input(raw_input string) (string, string)
 
 ### Incoming messages
 incomingRoutine waits to accept a connection from the host client and will pass both the sending and recieving client connections to unicastRecieve.
     
-    'func incoming_routine(l net.Listener, client net.Conn)'
+    func incoming_routine(l net.Listener, client net.Conn)
     
 unicastRecieve reads user input from the sending client, stores the message in a clean format, and outputs the time recieved as well as the 'Recieved message' text before closing the connection to the sending client. 
     
-    'func unicast_recieve(sending net.Conn, recieving net.Conn)' 
+    func unicast_recieve(sending net.Conn, recieving net.Conn)
 
 ### Outgoing messages
 
 outgoingRoutine takes the delay min/max from the config file, an channel storing the most recent outgoing message, and a connection from the sending client. This fuction stores the message data from the recieving client via channel in Server, and then proceeds to sleep the routine for a random duration bounded by the delay values and calls unicastSend within the routine.  Finally the function displays the current time with a "Sent message" text.
 
-    'func outgoing_routine(delays [2]int, outgoing_messages chan Message, client net.Conn)' 
+    func outgoing_routine(delays [2]int, outgoing_messages chan Message, client net.Conn)
     
 unicastSend takes the destination addresss and message, dials the destination server. The function then sends the message to the recieving client and subsequently closes the connection.
 
-    'func unicast_send(destination string, message string)' 
+    func unicast_send(destination string, message string)
 
 ### Flow of execution
 
