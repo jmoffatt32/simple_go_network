@@ -62,10 +62,7 @@ func unicast_recieve(c net.Conn, client net.Conn) {
 	t := time.Now()
 	myTime := t.Format(time.RFC3339)
 	content := strings.Trim(msg.content, "\n")
-	fmt.Printf("\n")
-	fmt.Fprintf(client, "->: ")
-	client.Write([]byte(myTime + "---" + "Received: \"" + content + "\" from " + msg.src + "\n"))
-	fmt.Fprintf(c, ">> ")
+	client.Write([]byte("->: " + myTime + "---" + "Received: \"" + content + "\" from " + msg.src + "\n"))
 	c.Close()
 }
 

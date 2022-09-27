@@ -26,11 +26,11 @@ func MainClient(address string) {
 		return
 	}
 
-	fmt.Print(">> ")
 	go listening(c)
 	for {
 		// Reads input from user and sends it to server
 		reader := bufio.NewReader(os.Stdin)
+		fmt.Print(">> ")
 		text, _ := reader.ReadString('\n')
 		fmt.Fprintf(c, text+"\n")
 
