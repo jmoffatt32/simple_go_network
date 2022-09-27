@@ -8,7 +8,7 @@
 4. You'll be presented with a command prompt, enter commands to send messages in the form,
    - `send {ID} {message}` where ID is the number of server instance that you have started, and message is a message you would like to send
 
-# Documentation
+# <ins>Documentation</ins>
 
 # Product Requirements
 
@@ -35,18 +35,18 @@ When a process sends or receives a message, it should write a timestamp to the t
 
 # Proposed Design
 
-- We started by breaking up the program into 4 processes. 
-1. The server process, stored in pkg/server/ 
-2. The client process, stored in pkg/client/ 
-3. The config file and the program to read it, stored in pkg/config/ 
+- We started by breaking up the program into 4 processes.
+
+1. The server process, stored in pkg/server/
+2. The client process, stored in pkg/client/
+3. The config file and the program to read it, stored in pkg/config/
 4. And main.go
 
-- We delegated separate responsibilities to each process. 
-    - <b>Server</b> contains the goroutines and tcp threads that send and recieve messages between server instances. 
-    - <b>Client</b> reads input from the terminal and forwards it to its corresponding server instance to send the message. 
-    - <b>Config</b> reads data from the configuration file to assign the min and max delay, as well as ID's, IP's, and Ports to each server. 
-    - And <b>main</b>, which acts as an entry point to the program and wraps all the separate processes in one file.
-
+- We delegated separate responsibilities to each process.
+  - <b>Server</b> contains the goroutines and tcp threads that send and recieve messages between server instances.
+  - <b>Client</b> reads input from the terminal and forwards it to its corresponding server instance to send the message.
+  - <b>Config</b> reads data from the configuration file to assign the min and max delay, as well as ID's, IP's, and Ports to each server.
+  - And <b>main</b>, which acts as an entry point to the program and wraps all the separate processes in one file.
 
 # Implementation / Flow of execution
 
@@ -55,11 +55,11 @@ When a process sends or receives a message, it should write a timestamp to the t
 ### Flow of execution
 
 - main takes a command line argument to initialize a process of a given ID.
-- To do this, the program stores the ID number as a variable and creates a map from the .config file using the FetchConfig function from the config pkg. 
+- To do this, the program stores the ID number as a variable and creates a map from the .config file using the FetchConfig function from the config pkg.
 - In addition to the map of the desired process information, main also obtains the min/max delay values from the .config file.
-- Next we launch the server as a go routine by calling the Server function from it's subsequent pkg with the proccess address, config map, and delay values as parameters. 
+- Next we launch the server as a go routine by calling the Server function from it's subsequent pkg with the proccess address, config map, and delay values as parameters.
 - To give time for the server to boot-up, the program sleeps for brief moment before launching the MainClient from it's subsequent pkg.
-- Now the simple_go_network is operational and the client and server can begin communicating with other running processes. 
+- Now the simple_go_network is operational and the client and server can begin communicating with other running processes.
 
 ## Config functionality in config.go
 
@@ -76,7 +76,7 @@ listening takes a connection and reads messages from it. When a message is recie
 MainClient takes an address and dials a connection to it. Once established user input is read from the command-line and sent to the network layer.
 
     func MainClient(address string)
-    
+
 ### Flow of execution
 
 Begins in MainClient:
@@ -92,26 +92,27 @@ Begins in MainClient:
 The Server function in server.go serves as a main function to initialize needed variables to properly implement unicastSend and unicastRecieve, aswell as the incoming/outgoing routines to communicate with other processes. Server then reads from the application layer to store the destination address,ID, and desired message to be sent later.
 
     func Server(address string, addrMap map[string]string, delay [2]int)
-    
+
 parseInput parses a string and outputs the destination ID and message from the user input fed in by the client.
 
     func parse_input(raw_input string) (string, string)
 
 ### Incoming messages
+
 incomingRoutine waits to accept a connection from the host client and will pass both the sending and recieving client connections to unicastRecieve.
-    
+
     func incoming_routine(l net.Listener, client net.Conn)
-    
-unicastRecieve reads user input from the sending client, stores the message in a clean format, and outputs the time recieved as well as the 'Recieved message' text before closing the connection to the sending client. 
-    
+
+unicastRecieve reads user input from the sending client, stores the message in a clean format, and outputs the time recieved as well as the 'Recieved message' text before closing the connection to the sending client.
+
     func unicast_recieve(sending net.Conn, recieving net.Conn)
 
 ### Outgoing messages
 
-outgoingRoutine takes the delay min/max from the config file, an channel storing the most recent outgoing message, and a connection from the sending client. This fuction stores the message data from the recieving client via channel in Server, and then proceeds to sleep the routine for a random duration bounded by the delay values and calls unicastSend within the routine.  Finally the function displays the current time with a "Sent message" text.
+outgoingRoutine takes the delay min/max from the config file, an channel storing the most recent outgoing message, and a connection from the sending client. This fuction stores the message data from the recieving client via channel in Server, and then proceeds to sleep the routine for a random duration bounded by the delay values and calls unicastSend within the routine. Finally the function displays the current time with a "Sent message" text.
 
     func outgoing_routine(delays [2]int, outgoing_messages chan Message, client net.Conn)
-    
+
 unicastSend takes the destination addresss and message, dials the destination server. The function then sends the message to the recieving client and subsequently closes the connection.
 
     func unicast_send(destination string, message string)
@@ -121,7 +122,7 @@ unicastSend takes the destination addresss and message, dials the destination se
 The flow of execution begins with Server:
 
 - Initially the port value from that was parsed in main.go is stored and formatted properly.
-- The server then begins listening on the specified port and opens a connection to possible clients created by user command line inputs. 
+- The server then begins listening on the specified port and opens a connection to possible clients created by user command line inputs.
 - Next the variables needed to run the communication go routines are initialized/passed to the incoming/outgoing functions and the routines are launched. These routines are responsible for handling incoming and outgoing messages, aswell as calling the unicastRecieve/Send functions.
 
 At this stage incoming/outgoing routines are running as threads, waiting to continue execution using values from the host/remote servers:
