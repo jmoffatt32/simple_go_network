@@ -2,11 +2,11 @@
 
 1. Install the go module on your machine. Run the command:
    - `go install tcp-network`
-2. Run the executable. Run the command providing an integer for `X`:
-   - `$HOME/go/bin/tcp-network X`
-
-Instruction for how to develop, use, and test the code
-information on what the problem was, why it needed to be solved, or what were the consequences of picking that particular solution.
+2. Run the executable. Run the command providing an integer for `ID`:
+   - `$HOME/go/bin/tcp-network ID`
+3. You will have to start at least two processes to send messages between instances
+4. You'll be presented with a command prompt, enter commands to send messages in the form,
+   - `send {ID} {message}` where ID is a server instance that you have started, and message is a message you would like to send
 
 # Documentation
 
@@ -37,11 +37,12 @@ When a process sends or receives a message, it should write a timestamp to the t
 
 - We started by breaking up the program into 4 processes. - The server process, stored in pkg/server/ - The client process, stored in pkg/client/ - The config file and the program to read it, stored in pkg/config/ - And main.go
 
-- We delegated separate responsibilities to each process. Server contains the goroutines and tcp threads that send and recieve messages between server instances. Client reads input from the terminal and forwards it to its corresponding server instance to send the message. Config reads data from the configuration file to assign the min and max delay, as well as ID's, IP's, and Ports to each server. And main, which acts as an entry point to the program and wraps all the separate processes in one file.
+- We delegated separate responsibilities to each process. 
+    - Server contains the goroutines and tcp threads that send and recieve messages between server instances. 
+    - Client reads input from the terminal and forwards it to its corresponding server instance to send the message. 
+    - Config reads data from the configuration file to assign the min and max delay, as well as ID's, IP's, and Ports to each server. 
+    - And main, which acts as an entry point to the program and wraps all the separate processes in one file.
 
-# Technical Design
-
-// PUT PROGRAM FLOW DIAGRAM HERE
 
 # Implementation / Flow of execution
 
@@ -50,7 +51,7 @@ When a process sends or receives a message, it should write a timestamp to the t
 ### Flow of execution
 
 - main takes a command line argument to initialize a process of a given ID.
-- To do this, the program stores the ID number as a variable and creates a map from the .config file using theFetchConfig function from the config pkg. 
+- To do this, the program stores the ID number as a variable and creates a map from the .config file using the FetchConfig function from the config pkg. 
 - In addition to the map of the desired process information, main also obtains the min/max delay values from the .config file.
 - Next we launch the server as a go routine by calling the Server function from it's subsequent pkg with the proccess address, config map, and delay values as parameters. 
 - To give time for the server to boot-up, the program sleeps for brief moment before launching the MainClient from it's subsequent pkg.
@@ -60,7 +61,7 @@ When a process sends or receives a message, it should write a timestamp to the t
 
 FetchConfig takes a map of strings with string key values, and an array of 2 integers as inputs. The function opens the .config files from it's subsequent package and reads each line. The delay values on line 1 are stored in the array and the rest of the lines are stored in the map, mapping each process ID to their relative address:port before safely closing the file.
 
-   'func FetchConfig() (map[string]string, [2]int)' 
+    'func FetchConfig() (map[string]string, [2]int)' 
 
 ## Client functionality in client.go
 
