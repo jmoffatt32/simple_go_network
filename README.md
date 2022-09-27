@@ -3,7 +3,7 @@
 1. Install the go module on your machine. Run the command:
    - `go install tcp-network`
 2. Run the executable. Run the command providing an integer for `ID`:
-   - `$HOME/go/bin/tcp-network ID`
+   - `$HOME/go/bin/tcp-network {ID}`
 3. You will have to start at least two processes (in two different terminals) to send messages between instances
 4. You'll be presented with a command prompt, enter commands to send messages in the form,
    - `send {ID} {message}` where ID is the number of server instance that you have started, and message is a message you would like to send
@@ -35,13 +35,17 @@ When a process sends or receives a message, it should write a timestamp to the t
 
 # Proposed Design
 
-- We started by breaking up the program into 4 processes. - The server process, stored in pkg/server/ - The client process, stored in pkg/client/ - The config file and the program to read it, stored in pkg/config/ - And main.go
+- We started by breaking up the program into 4 processes. 
+1. The server process, stored in pkg/server/ 
+2. The client process, stored in pkg/client/ 
+3. The config file and the program to read it, stored in pkg/config/ 
+4. And main.go
 
 - We delegated separate responsibilities to each process. 
-    - Server contains the goroutines and tcp threads that send and recieve messages between server instances. 
-    - Client reads input from the terminal and forwards it to its corresponding server instance to send the message. 
-    - Config reads data from the configuration file to assign the min and max delay, as well as ID's, IP's, and Ports to each server. 
-    - And main, which acts as an entry point to the program and wraps all the separate processes in one file.
+    - <b>Server</b> contains the goroutines and tcp threads that send and recieve messages between server instances. 
+    - <b>Client</b> reads input from the terminal and forwards it to its corresponding server instance to send the message. 
+    - <b>Config</b> reads data from the configuration file to assign the min and max delay, as well as ID's, IP's, and Ports to each server. 
+    - And <b>main</b>, which acts as an entry point to the program and wraps all the separate processes in one file.
 
 
 # Implementation / Flow of execution
