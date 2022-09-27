@@ -1,4 +1,4 @@
-# Instructions
+# <ins>Instructions</ins>
 
 1. Install the go module on your machine. Run the command:
    - `go install tcp-network`
