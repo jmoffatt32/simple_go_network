@@ -38,6 +38,6 @@ func main() {
 
 	// Launch server to run for this process
 	go server.Server(addrMap[id], addrMap, delay)
-	time.Sleep(time.Second)
+	time.Sleep(time.Millisecond * 15) // Needed so client doesn't try to reach server before server has started
 	client.MainClient(address)
 }
