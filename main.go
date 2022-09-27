@@ -10,7 +10,9 @@ import (
 	"time"
 )
 
-func inputError() {
+// Helper function to promt the user to provide a network ID as
+// a command line argument.
+func input_error() {
 	fmt.Println("Please provide a network ID: {1, 2, 3, 4}")
 }
 
@@ -18,7 +20,7 @@ func main() {
 
 	// Take ID input from command line and initialize node address and delay
 	if len(os.Args) < 2 {
-		inputError()
+		input_error()
 		return
 	}
 
@@ -26,7 +28,7 @@ func main() {
 	id := os.Args[1]
 	val, err := strconv.Atoi(os.Args[1])
 	if err != nil || val < 1 || val > 4 {
-		inputError()
+		input_error()
 		return
 	}
 
