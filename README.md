@@ -7,6 +7,7 @@
 3. You will have to start at least two processes (in two different terminals) to send messages between instances
 4. You'll be presented with a command prompt, enter commands to send messages in the form,
    - `send {ID} {message}` where ID is the number of server instance that you have started, and message is a message you would like to send
+NOTE: If you would like more than 4 processes, simply add more lines to the .config file, with the same format.
 
 # Documentation
 
@@ -102,13 +103,14 @@ incomingRoutine waits to accept a connection from the host client and will pass 
     
     func incoming_routine(l net.Listener, client net.Conn)
     
-unicastRecieve reads user input from the sending client, stores the message in a clean format, and outputs the time recieved as well as the 'Recieved message' text before closing the connection to the sending client. 
+unicastRecieve reads user input from the sending client, stores the message in a clean format, and outputs the time recieved as well as the 'Recieved message from address:port' text before closing the connection to the sending client. 
+NOTE: Here the displayed port will be the source clients' ephemeral port generated from the TCP protocol, rather than the port from the .config file.
     
     func unicast_recieve(sending net.Conn, recieving net.Conn)
 
 ### Outgoing messages
 
-outgoingRoutine takes the delay min/max from the config file, an channel storing the most recent outgoing message, and a connection from the sending client. This fuction stores the message data from the recieving client via channel in Server, and then proceeds to sleep the routine for a random duration bounded by the delay values and calls unicastSend within the routine.  Finally the function displays the current time with a "Sent message" text.
+outgoingRoutine takes the delay min/max from the config file, an channel storing the most recent outgoing message, and a connection from the sending client. This fuction stores the message data from the recieving client via channel in Server, and then proceeds to sleep the routine for a random duration bounded by the delay values and calls unicastSend within the routine.  Finally the function displays the current time with a "Sent message to address:port" text.
 
     func outgoing_routine(delays [2]int, outgoing_messages chan Message, client net.Conn)
     
