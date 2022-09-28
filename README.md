@@ -64,7 +64,7 @@ When a process sends or receives a message, it should write a timestamp to the t
 
 ## Config functionality in config.go
 
-FetchConfig takes a map of strings with string key values, and an array of 2 integers as inputs. The function opens the .config files from it's subsequent package and reads each line. The delay values on line 1 are stored in the array and the rest of the lines are stored in the map, mapping each process ID to their relative address:port before safely closing the file.
+FetchConfig outputs a map of strings with string key values, and an array of 2 integers. The function opens the .config files from it's subsequent package and reads each line. The delay values on line 1 are stored in the array and the rest of the lines are stored in the map, mapping each process ID to their relative address:port before safely closing the file.
 
     func FetchConfig() (map[string]string, [2]int)
 
